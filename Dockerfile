@@ -1,9 +1,9 @@
-FROM python:2.7-alpine
+FROM python:3.8-alpine
 
-ENV TERRAFORM_VERSION=0.11.3 \
-    GCLOUD_SDK_VERSION=200.0.0 \
+ENV TERRAFORM_VERSION=0.12.23 \
+    GCLOUD_SDK_VERSION=283.0.0 \
     CFSSL_VERSION=R1.2 \
-    KUBE_VERSION=v1.12.2
+    KUBE_VERSION=v1.17.3
 
 ENV GCLOUD_SDK_FILE=google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz \
     TERRAFORM_FILE=terraform_${TERRAFORM_VERSION}_linux_amd64.zip
@@ -26,7 +26,7 @@ RUN unzip $TERRAFORM_FILE && \
     /root/google-cloud-sdk/bin/gcloud config set disable_usage_reporting true && \
     rm /root/${GCLOUD_SDK_FILE} && \
     chmod +x /usr/local/bin/cfssl* /usr/local/bin/kubectl && \
-    pip2 install ansible
+    pip install ansible
 
 ADD profile /root/.bashrc
 ADD ansible.cfg /root/.ansible.cfg

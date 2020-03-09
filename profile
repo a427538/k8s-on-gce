@@ -4,9 +4,9 @@ source /root/google-cloud-sdk/completion.bash.inc
 source /root/google-cloud-sdk/path.bash.inc
 
 # For terraform
-export GCLOUD_PROJECT=k8s-hw-1
-export GCLOUD_REGION=europe-west1
-export GCLOUD_ZONE=europe-west1-b
+export GCLOUD_PROJECT=stich-karl-my-k8s
+export GCLOUD_REGION=europe-west3
+export GCLOUD_ZONE=europe-west3-b
 
 # For ansible
 export GCE_PROJECT=$GCLOUD_PROJECT

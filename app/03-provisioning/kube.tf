@@ -1,17 +1,18 @@
 variable "gce_ssh_user" {
   default = "root"
 }
+
 variable "gce_ssh_pub_key_file" {
   default = "~/.ssh/google_compute_engine.pub"
 }
 
 variable "gce_zone" {
-  type = "string"
+  type = string
 }
 
 // Configure the Google Cloud provider
 provider "google" {
-  credentials = "${file("adc.json")}"
+  credentials = file("/root/app/adc.json")
 }
 
 resource "google_compute_network" "default" {
@@ -20,14 +21,14 @@ resource "google_compute_network" "default" {
 }
 
 resource "google_compute_subnetwork" "default" {
-  name            = "kubernetes"
-  network         = "${google_compute_network.default.name}"
-  ip_cidr_range   = "10.240.0.0/24"
+  name          = "kubernetes"
+  network       = google_compute_network.default.name
+  ip_cidr_range = "10.240.0.0/24"
 }
 
 resource "google_compute_firewall" "internal" {
   name    = "kubernetes-the-easy-way-allow-internal"
-  network = "${google_compute_network.default.name}"
+  network = google_compute_network.default.name
 
   allow {
     protocol = "icmp"
@@ -41,12 +42,12 @@ resource "google_compute_firewall" "internal" {
     protocol = "tcp"
   }
 
-  source_ranges = [ "10.240.0.0/24","10.200.0.0/16" ]
+  source_ranges = ["10.240.0.0/24", "10.200.0.0/16"]
 }
 
 resource "google_compute_firewall" "external" {
   name    = "kubernetes-the-easy-way-allow-external"
-  network = "${google_compute_network.default.name}"
+  network = google_compute_network.default.name
 
   allow {
     protocol = "icmp"
@@ -61,21 +62,21 @@ resource "google_compute_firewall" "external" {
     ports    = ["22", "6443"]
   }
 
-  source_ranges = [ "0.0.0.0/0" ]
+  source_ranges = ["0.0.0.0/0"]
 }
 
 resource "google_compute_address" "default" {
   name = "kubernetes-the-easy-way"
 }
 
-resource "google_compute_instance" "controller" {
-  count = 3
-  name            = "controller-${count.index}"
-  machine_type    = "n1-standard-1"
-  zone            = "${var.gce_zone}"
-  can_ip_forward  = true
+resource "google_compute_instance" "nfs" {
+  count          = 1
+  name           = "nfs-${count.index}"
+  machine_type   = "n1-standard-1"
+  zone           = var.gce_zone
+  can_ip_forward = true
 
-  tags = ["kubernetes-the-easy-way","controller"]
+  tags = ["kubernetes-the-easy-way", "nfs"]
 
   boot_disk {
     initialize_params {
@@ -88,16 +89,97 @@ resource "google_compute_instance" "controller" {
   }
 
   network_interface {
-    subnetwork = "${google_compute_subnetwork.default.name}"
+    subnetwork = google_compute_subnetwork.default.name
+    network_ip = "10.240.0.3${count.index}"
+
+    access_config {
+      // Ephemeral IP
+    }
+  }
+
+  service_account {
+    email  = "terraform@stich-karl-my-k8s.iam.gserviceaccount.com"
+    scopes = ["compute-rw", "storage-ro", "service-management", "service-control", "logging-write", "monitoring"]
+  }
+
+  metadata = {
+    sshKeys = "${var.gce_ssh_user}:${file(var.gce_ssh_pub_key_file)}"
+  }
+
+  metadata_startup_script = "apt-get install -y python"
+}
+
+resource "google_compute_instance" "haproxy" {
+  count          = 1
+  name           = "haproxy-${count.index}"
+  machine_type   = "n1-standard-1"
+  zone           = var.gce_zone
+  can_ip_forward = true
+
+  tags = ["kubernetes-the-easy-way", "haproxy"]
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-1804-lts"
+    }
+  }
+
+  // Local SSD disk
+  scratch_disk {
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.name
+    network_ip = "10.240.0.4${count.index}"
+
+    access_config {
+      // Ephemeral IP
+    }
+  }
+
+  service_account {
+    email  = "terraform@stich-karl-my-k8s.iam.gserviceaccount.com"
+    scopes = ["compute-rw", "storage-ro", "service-management", "service-control", "logging-write", "monitoring"]
+  }
+
+  metadata = {
+    sshKeys = "${var.gce_ssh_user}:${file(var.gce_ssh_pub_key_file)}"
+  }
+
+  metadata_startup_script = "apt-get install -y python"
+}
+
+resource "google_compute_instance" "controller" {
+  count          = 1
+  name           = "controller-${count.index}"
+  machine_type   = "n1-standard-1"
+  zone           = var.gce_zone
+  can_ip_forward = true
+
+  tags = ["kubernetes-the-easy-way", "controller"]
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-1804-lts"
+    }
+  }
+
+  // Local SSD disk
+  scratch_disk {
+  }
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.name
     network_ip = "10.240.0.1${count.index}"
 
     access_config {
       // Ephemeral IP
     }
   }
-  
+
   service_account {
-    scopes = ["compute-rw","storage-ro","service-management","service-control","logging-write","monitoring"]
+    email  = "terraform@stich-karl-my-k8s.iam.gserviceaccount.com"
+    scopes = ["compute-rw", "storage-ro", "service-management", "service-control", "logging-write", "monitoring"]
   }
 
   metadata = {
@@ -108,13 +190,13 @@ resource "google_compute_instance" "controller" {
 }
 
 resource "google_compute_instance" "worker" {
-  count = 3
-  name            = "worker-${count.index}"
-  machine_type    = "n1-standard-1"
-  zone            = "${var.gce_zone}"
-  can_ip_forward  = true
+  count          = 1
+  name           = "worker-${count.index}"
+  machine_type   = "n1-standard-1"
+  zone           = var.gce_zone
+  can_ip_forward = true
 
-  tags = ["kubernetes-the-easy-way","worker"]
+  tags = ["kubernetes-the-easy-way", "worker"]
 
   boot_disk {
     initialize_params {
@@ -127,22 +209,24 @@ resource "google_compute_instance" "worker" {
   }
 
   network_interface {
-    subnetwork = "${google_compute_subnetwork.default.name}"
+    subnetwork = google_compute_subnetwork.default.name
     network_ip = "10.240.0.2${count.index}"
 
     access_config {
       // Ephemeral IP
     }
   }
-  
+
   service_account {
-    scopes = ["compute-rw","storage-ro","service-management","service-control","logging-write","monitoring"]
+    email  = "terraform@stich-karl-my-k8s.iam.gserviceaccount.com"
+    scopes = ["compute-rw", "storage-ro", "service-management", "service-control", "logging-write", "monitoring"]
   }
 
   metadata = {
     pod-cidr = "10.200.${count.index}.0/24"
-    sshKeys = "${var.gce_ssh_user}:${file(var.gce_ssh_pub_key_file)}"
+    sshKeys  = "${var.gce_ssh_user}:${file(var.gce_ssh_pub_key_file)}"
   }
 
   metadata_startup_script = "apt-get install -y python"
 }
+
