@@ -1,4 +1,4 @@
-- hosts: controllers
+- hosts: gcp_hostgroup_controller
   remote_user: root
   vars:
     etcd_version: "{{ lookup('env','ETCD_VERSION') }}"

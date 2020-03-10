@@ -1,4 +1,4 @@
-- hosts: controller-0
+- hosts: localhost
   remote_user: root
   tasks:
   - name: copy rbac-setup script

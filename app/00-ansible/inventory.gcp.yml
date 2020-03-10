@@ -1,0 +1,29 @@
+plugin: gcp_compute
+# zones: # populate inventory with instances in these regions
+#  - europe-west3-b
+projects:
+  - stich-karl-my-k8s
+service_account_file: /root/app/adc.json
+auth_kind: serviceaccount
+filters: []
+scopes:
+ - 'https://www.googleapis.com/auth/cloud-platform'
+ - 'https://www.googleapis.com/auth/compute.readonly'
+groups:
+  # add hosts to the group development if any of the dictionary's keys or values is the word 'devel'
+  nfs: "'nfs' in (tags|list)"
+  haproxy: "'haproxy' in (tags|list)"
+  controller: "'controller' in (tags|list)"
+keyed_groups:
+  # Create groups from GCE labels
+  - prefix: gcp
+    key: labels
+hostnames:
+  # List host by name instead of the default public ip
+  - name
+  - private_ip
+  - public_ip
+compose:
+  # Set an inventory parameter to use the Public IP address to connect to the host
+  # For Private ip use "networkInterfaces[0].networkIP"
+  ansible_host: networkInterfaces[0].accessConfigs[0].natIP
