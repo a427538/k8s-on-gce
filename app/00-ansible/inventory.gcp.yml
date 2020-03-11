@@ -10,14 +10,17 @@ scopes:
  - 'https://www.googleapis.com/auth/cloud-platform'
  - 'https://www.googleapis.com/auth/compute.readonly'
 groups:
-  # add hosts to the group development if any of the dictionary's keys or values is the word 'devel'
-  nfs: "'nfs' in (tags|list)"
-  haproxy: "'haproxy' in (tags|list)"
-  controller: "'controller' in (tags|list)"
+  k8s-cluster: true
 keyed_groups:
-  # Create groups from GCE labels
-  - prefix: gcp
-    key: labels
+  # - key: tags['items']
+  - key: labels['kubespray-0']
+    separator: ''
+  - key: labels['kubespray-1']
+    separator: ''
+  - key: labels['kubespray-2']
+    separator: ''        
+  - key: labels['hostgroup']
+    separator: ''    
 hostnames:
   # List host by name instead of the default public ip
   - name
@@ -27,3 +30,6 @@ compose:
   # Set an inventory parameter to use the Public IP address to connect to the host
   # For Private ip use "networkInterfaces[0].networkIP"
   ansible_host: networkInterfaces[0].accessConfigs[0].natIP
+  ansible_connection: ssh
+  ansible_ssh_private_key_file: /root/.ssh/google_compute_engine
+  ansible_user: root  

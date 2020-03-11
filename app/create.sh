@@ -11,17 +11,16 @@ ssh-keygen -q -P "" -f /root/.ssh/google_compute_engine
 
 terraform init 03-provisioning
 
-# terraform apply -auto-approve -var "gce_zone=${GCLOUD_ZONE}" 03-provisioning
-terraform apply -auto-approve 03-provisioning
+terraform apply -auto-approve -var "gce_zone=${GCLOUD_ZONE}" 03-provisioning
 
-cd /root/app/04-certs
-./gen-certs.sh
+# cd /root/app/04-certs
+# ./gen-certs.sh
 
-cd /root/app/05-kubeconfig
-./gen-conf.sh
+# cd /root/app/05-kubeconfig
+# ./gen-conf.sh
 
-cd /root/app/06-encryption
-./gen-encrypt.sh
+# cd /root/app/06-encryption
+# ./gen-encrypt.sh
 
 cd /root/app
 ansible-inventory -i 00-ansible/inventory.gcp.yml --graph

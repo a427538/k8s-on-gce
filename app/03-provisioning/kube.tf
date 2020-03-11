@@ -6,6 +6,10 @@ variable "gce_ssh_pub_key_file" {
   default = "~/.ssh/google_compute_engine.pub"
 }
 
+variable "gce_zone" {
+  type = string
+}
+
 // Configure the Google Cloud provider
 provider "google" {
   credentials = file("/root/app/adc.json")
@@ -70,6 +74,7 @@ resource "google_compute_instance" "nfs" {
   name           = "nfs-${count.index}"
   machine_type   = "e2-micro"
   can_ip_forward = true
+  zone           = var.gce_zone
 
   labels = {
     hostgroup = "nfs"
@@ -115,6 +120,7 @@ resource "google_compute_instance" "haproxy" {
   name           = "haproxy-${count.index}"
   machine_type   = "e2-micro"
   can_ip_forward = true
+  zone           = var.gce_zone
   
   labels = {
     hostgroup = "haproxy"
@@ -207,9 +213,12 @@ resource "google_compute_instance_template" "controller" {
 
   labels = {
     hostgroup = "controller"
+    kubespray-0 = "kube-node"
+    kubespray-1 = "kube-master"
+    kubespray-2 = "etcd"
   }
 
-  tags = ["kubernetes-the-easy-way", "controller"]
+  tags = ["kubernetes-the-easy-way", "controller", "kube-master", "etcd"]
   name_prefix = "controller-"
 
   scheduling {
@@ -256,9 +265,10 @@ resource "google_compute_instance_template" "worker" {
 
   labels = {
     hostgroup = "worker"
+    kubespray-0 = "kube-node"
   }
 
-  tags = ["kubernetes-the-easy-way", "worker"]
+  tags = ["kubernetes-the-easy-way", "worker", "kube-node"]
   name_prefix = "worker-"
 
   scheduling {

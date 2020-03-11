@@ -1,7 +1,7 @@
-FROM python:3.8-alpine
+FROM python:3.5-alpine
 
 ENV TERRAFORM_VERSION=0.12.23 \
-    GCLOUD_SDK_VERSION=283.0.0 \
+    GCLOUD_SDK_VERSION=284.0.0 \
     CFSSL_VERSION=R1.2 \
     KUBE_VERSION=v1.17.3 \
     KUBESPRAY_RELEASE=release-2.12
@@ -27,8 +27,12 @@ RUN unzip $TERRAFORM_FILE && \
     /root/google-cloud-sdk/bin/gcloud config set disable_usage_reporting true && \
     rm /root/${GCLOUD_SDK_FILE} && \
     chmod +x /usr/local/bin/cfssl* /usr/local/bin/kubectl && \
-    pip install ansible requests google-auth \
-    git clone https://github.com/kubernetes-sigs/kubespray.git && cd kubespray && git checkout ${KUBESPRAY_RELEASE} && cd ..
+    git clone https://github.com/kubernetes-sigs/kubespray.git && \
+    cd kubespray && \
+    git checkout ${KUBESPRAY_RELEASE} && \
+    pip install -r requirements.txt && \
+    pip install requests google-auth && \
+    cd ..
 
 ADD profile /root/.bashrc
 ADD ansible.cfg /root/.ansible.cfg

@@ -1,4 +1,4 @@
-- hosts: gcp_hostgroup_haproxy
+- hosts: haproxy
   tasks:
     - name: update apt cache
       apt:
