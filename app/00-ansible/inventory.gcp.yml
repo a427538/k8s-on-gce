@@ -10,26 +10,30 @@ scopes:
  - 'https://www.googleapis.com/auth/cloud-platform'
  - 'https://www.googleapis.com/auth/compute.readonly'
 groups:
-  k8s-cluster: true
+  k8s-cluster: false
 keyed_groups:
   # - key: tags['items']
   - key: labels['kubespray-0']
     separator: ''
+    unsave: true
+    parent_group: k8s-cluster
   - key: labels['kubespray-1']
     separator: ''
+    unsave: true
   - key: labels['kubespray-2']
-    separator: ''        
+    separator: ''
+    unsave: true        
   - key: labels['hostgroup']
-    separator: ''    
+    separator: ''
+    unsave: true   
 hostnames:
   # List host by name instead of the default public ip
   - name
-  - private_ip
-  - public_ip
 compose:
   # Set an inventory parameter to use the Public IP address to connect to the host
   # For Private ip use "networkInterfaces[0].networkIP"
   ansible_host: networkInterfaces[0].accessConfigs[0].natIP
+  ip: networkInterfaces[0].networkIP 
   ansible_connection: ssh
   ansible_ssh_private_key_file: /root/.ssh/google_compute_engine
   ansible_user: root  

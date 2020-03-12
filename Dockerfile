@@ -10,7 +10,7 @@ ENV GCLOUD_SDK_FILE=google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz \
     TERRAFORM_FILE=terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 RUN apk update && \
-    apk add bash curl git openssh-client gcc make musl-dev libffi-dev openssl-dev && \
+    apk add bash curl git openssh-client gcc make musl-dev libffi-dev openssl-dev jq && \
     curl -o /root/$GCLOUD_SDK_FILE https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/$GCLOUD_SDK_FILE && \
     curl -o /usr/local/bin/cfssl https://pkg.cfssl.org/$CFSSL_VERSION/cfssl_linux-amd64 && \
     curl -o /usr/local/bin/cfssljson https://pkg.cfssl.org/$CFSSL_VERSION/cfssljson_linux-amd64 && \
@@ -30,12 +30,14 @@ RUN unzip $TERRAFORM_FILE && \
     git clone https://github.com/kubernetes-sigs/kubespray.git && \
     cd kubespray && \
     git checkout ${KUBESPRAY_RELEASE} && \
+    cp -rfp inventory/sample inventory/mycluster && \
     pip install -r requirements.txt && \
     pip install requests google-auth && \
     cd ..
 
 ADD profile /root/.bashrc
 ADD ansible.cfg /root/.ansible.cfg
+ADD ansible.cfg /root/kubespray/ansible.cfg
 
 WORKDIR /root/app
 
