@@ -32,7 +32,7 @@ RUN unzip $TERRAFORM_FILE && \
     git checkout ${KUBESPRAY_RELEASE} && \
     cp -rfp inventory/sample inventory/mycluster && \
     pip install -r requirements.txt && \
-    pip install requests google-auth && \
+    pip install requests google-auth apache-libcloud && \
     cd ..
 
 ADD profile /root/.bashrc

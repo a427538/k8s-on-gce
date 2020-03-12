@@ -1,15 +1,15 @@
 - hosts: all
   remote_user: root
   tasks:
-  
+
   - name: Add tags to instance
     gce_tag:
-      instance_pattern: node-[1:3]
+      instance_pattern: node-[0:2]
       tags: kube-master, kube-node, etcd
       state: present
 
   - name: Add tags to instance
     gce_tag:
-      instance_pattern: node-[4:6]
+      instance_pattern: node-[3:5]
       tags: kube-node
       state: present
