@@ -59,7 +59,7 @@ resource "google_compute_firewall" "external" {
 
   allow {
     protocol = "tcp"
-    ports    = ["22", "6443"]
+    ports    = ["22", "80", "443", "6443"]
   }
 
   source_ranges = ["0.0.0.0/0"]
@@ -128,6 +128,7 @@ resource "google_compute_instance" "bastion" {
 
   network_interface {
     subnetwork = google_compute_subnetwork.default.name
+    network_ip = "10.240.0.254"
 
     access_config {
       nat_ip = google_compute_address.default.address
@@ -143,8 +144,8 @@ resource "google_compute_instance" "bastion" {
     sshKeys = "${var.gce_ssh_user}:${file(var.gce_ssh_pub_key_file)}"
   }
 
-  metadata_startup_script = file("startup-bastion.sh")
-  
+  metadata_startup_script = file("03-provisioning/startup-bastion.sh")
+
 }
 
 resource "google_compute_instance" "node" {
@@ -180,7 +181,7 @@ resource "google_compute_instance" "node" {
     sshKeys = "${var.gce_ssh_user}:${file(var.gce_ssh_pub_key_file)}"
   }
 
-  metadata_startup_script = "apt-get install -y python"
+  metadata_startup_script = file("03-provisioning/startup-node.sh")
 }
 
 //resource "google_compute_instance_template" "controller" {
