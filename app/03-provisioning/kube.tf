@@ -154,7 +154,7 @@ resource "google_compute_instance" "node" {
   machine_type   = "e2-micro"
   can_ip_forward = true
 
-  tags = ["kubernetes-the-easy-way"]
+  tags = ["kubernetes-the-easy-way", "no-ip"]
 
   boot_disk {
     initialize_params {
