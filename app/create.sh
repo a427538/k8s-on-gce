@@ -23,12 +23,14 @@ terraform apply -auto-approve -var "gce_zone=${GCLOUD_ZONE}" 03-provisioning
 # ./gen-encrypt.sh
 
 cd /root/app
-ansible-inventory -i 00-ansible/inventory.gcp.yml --graph
-# 00-ansible/create-inventory.sh
+# ansible-inventory -i 00-ansible/inventory.gcp.yml --graph
+00-ansible/create-inventory.sh && \
+ansible-playbook -i hosts.ini 00-ansible/add-tags-playbook.yml && \
+00-ansible/create-inventory.sh
 
-ansible-playbook -i 00-ansible/inventory.gcp.yml 07-etcd/etcd-playbook.yml
+# ansible-playbook -i 00-ansible/inventory.gcp.yml 07-etcd/etcd-playbook.yml
 
-ansible-playbook -i 00-ansible/inventory.gcp.yml 07-haproxy/haproxy-playbook.yml
+# ansible-playbook -i 00-ansible/inventory.gcp.yml 07-haproxy/haproxy-playbook.yml
 
 # ansible-playbook -i 00-ansible/inventory.gcp.yml 08-kube-controller/kube-controller-playbook.yml
 # ansible-playbook -i 00-ansible/inventory.gcp.yml 08-kube-controller/rbac-playbook.yml

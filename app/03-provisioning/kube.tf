@@ -89,18 +89,13 @@ resource "google_compute_instance" "nfs" {
     }
   }
 
-  // Local SSD disk
-  // scratch_disk {
-  //   interface = "SCSI"
-  // }
-
   network_interface {
     subnetwork = google_compute_subnetwork.default.name
-    network_ip = "10.240.0.3${count.index}"
+    // network_ip = "10.240.0.3${count.index}"
 
-    access_config {
-      // Ephemeral IP
-    }
+    // access_config {
+    //   // Ephemeral IP
+    // }
   }
 
   service_account {
@@ -115,18 +110,14 @@ resource "google_compute_instance" "nfs" {
   metadata_startup_script = "apt-get install -y python"
 }
 
-resource "google_compute_instance" "haproxy" {
+resource "google_compute_instance" "bastion" {
   count          = 1
-  name           = "haproxy-${count.index}"
+  name           = "bastion-${count.index}"
   machine_type   = "e2-micro"
   can_ip_forward = true
   zone           = var.gce_zone
-  
-  labels = {
-    hostgroup = "haproxy"
-  }
 
-  tags = ["kubernetes-the-easy-way", "haproxy"]
+  tags = ["kubernetes-the-easy-way", "haproxy", "bastion"]
 
   boot_disk {
     initialize_params {
@@ -134,11 +125,6 @@ resource "google_compute_instance" "haproxy" {
       image = "ubuntu-os-cloud/ubuntu-minimal-1804-bionic-v20200220"
     }
   }
-
-  // Local SSD disk
-  // scratch_disk {
-  //   interface = "SCSI"
-  // }
 
   network_interface {
     subnetwork = google_compute_subnetwork.default.name
@@ -161,87 +147,30 @@ resource "google_compute_instance" "haproxy" {
   metadata_startup_script = "apt-get install -y python"
 }
 
-// resource "google_compute_instance" "controller" {
-//   count          = 1
-//   name           = "controller-${count.index}"
-//   machine_type   = "e2-micro"
-//   can_ip_forward = true
-// 
-//   labels = {
-//     hostgroup = "controller"
-//   }
-// 
-//   tags = ["kubernetes-the-easy-way", "controller"]
-// 
-//   boot_disk {
-//     initialize_params {
-//       type = "pd-standard"
-//       image = "ubuntu-os-cloud/ubuntu-minimal-1804-bionic-v20200220"
-//     }
-//   }
-// 
-//   // Local SSD disk
-//   // scratch_disk {
-//   //   interface = "SCSI"
-//   // }
-// 
-//   network_interface {
-//     subnetwork = google_compute_subnetwork.default.name
-//     network_ip = "10.240.0.1${count.index}"
-// 
-//     access_config {
-//       // Ephemeral IP
-//     }
-//   }
-// 
-//   service_account {
-//     email  = "terraform@stich-karl-my-k8s.iam.gserviceaccount.com"
-//     scopes = ["compute-rw", "storage-ro", "service-management", "service-control", "logging-write", "monitoring"]
-//   }
-// 
-//   metadata = {
-//     sshKeys = "${var.gce_ssh_user}:${file(var.gce_ssh_pub_key_file)}"
-//   }
-// 
-//   metadata_startup_script = "apt-get install -y python"
-// }
-
-resource "google_compute_instance_template" "controller" {
-
+resource "google_compute_instance" "node" {
+  count          = 6
+  name           = "node-${count.index}"
   machine_type   = "e2-micro"
   can_ip_forward = true
 
-  labels = {
-    hostgroup = "controller"
-    kubespray-0 = "kube-node"
-    kubespray-1 = "kube-master"
-    kubespray-2 = "etcd"
-  }
+  tags = ["kubernetes-the-easy-way"]
 
-  tags = ["kubernetes-the-easy-way", "controller", "kube-master", "etcd"]
-  name_prefix = "controller-"
-
-  scheduling {
-    preemptible       = false
-    automatic_restart = true
-  }
-
-  // Create a new boot disk from an image
-  disk {
-    source_image = "ubuntu-os-cloud/ubuntu-minimal-1804-bionic-v20200220"
-    auto_delete  = true
-    boot         = true
-    disk_type    = "pd-standard"
+  boot_disk {
+    initialize_params {
+      type = "pd-standard"
+      image = "ubuntu-os-cloud/ubuntu-minimal-1804-bionic-v20200220"
+    }
   }
 
   network_interface {
     subnetwork = google_compute_subnetwork.default.name
+    // network_ip = "10.240.0.1${count.index}"
+// 
+    // access_config {
+    //   // Ephemeral IP
+    // }
+  }
 
-    access_config {
-      // Ephemeral IP
-    }
-  }  
-  
   service_account {
     email  = "terraform@stich-karl-my-k8s.iam.gserviceaccount.com"
     scopes = ["compute-rw", "storage-ro", "service-management", "service-control", "logging-write", "monitoring"]
@@ -252,123 +181,169 @@ resource "google_compute_instance_template" "controller" {
   }
 
   metadata_startup_script = "apt-get install -y python"
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
-resource "google_compute_instance_template" "worker" {
+//resource "google_compute_instance_template" "controller" {
+//
+//  machine_type   = "e2-micro"
+//  can_ip_forward = true
+//
+//  labels = {
+//    hostgroup = "controller"
+//    kubespray-0 = "kube-node"
+//    kubespray-1 = "kube-master"
+//    kubespray-2 = "etcd"
+//  }
+//
+//  tags = ["kubernetes-the-easy-way", "controller", "kube-master", "etcd"]
+//  name_prefix = "controller-"
+//
+//  scheduling {
+//    preemptible       = false
+//    automatic_restart = true
+//  }
+//
+//  // Create a new boot disk from an image
+//  disk {
+//    source_image = "ubuntu-os-cloud/ubuntu-minimal-1804-bionic-v20200220"
+//    auto_delete  = true
+//    boot         = true
+//    disk_type    = "pd-standard"
+//  }
+//
+//  network_interface {
+//    subnetwork = google_compute_subnetwork.default.name
+//
+//    access_config {
+//      // Ephemeral IP
+//    }
+//  }  
+//  
+//  service_account {
+//    email  = "terraform@stich-karl-my-k8s.iam.gserviceaccount.com"
+//    scopes = ["compute-rw", "storage-ro", "service-management", "service-control", "logging-write", "monitoring"]
+//  }
+//
+//  metadata = {
+//    sshKeys = "${var.gce_ssh_user}:${file(var.gce_ssh_pub_key_file)}"
+//  }
+//
+//  metadata_startup_script = "apt-get install -y python"
+//
+//  lifecycle {
+//    create_before_destroy = true
+//  }
+//}
 
-  machine_type   = "e2-micro"
-  can_ip_forward = true
-
-  labels = {
-    hostgroup = "worker"
-    kubespray-0 = "kube-node"
-  }
-
-  tags = ["kubernetes-the-easy-way", "worker", "kube-node"]
-  name_prefix = "worker-"
-
-  scheduling {
-    preemptible       = true
-    automatic_restart = false
-  }
-
-  // Create a new boot disk from an image
-  disk {
-    source_image = "ubuntu-os-cloud/ubuntu-minimal-1804-bionic-v20200220"
-    auto_delete  = true
-    boot         = true
-    disk_type    = "pd-standard"
-  }
-
-  network_interface {
-    subnetwork = google_compute_subnetwork.default.name
-
-    access_config {
-      // Ephemeral IP
-    }
-  }  
-  
-  service_account {
-    email  = "terraform@stich-karl-my-k8s.iam.gserviceaccount.com"
-    scopes = ["compute-rw", "storage-ro", "service-management", "service-control", "logging-write", "monitoring"]
-  }
-
-  metadata = {
-    sshKeys = "${var.gce_ssh_user}:${file(var.gce_ssh_pub_key_file)}"
-  }
-
-  metadata_startup_script = "apt-get install -y python"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "google_compute_region_instance_group_manager" "controller" {
-  name               = "mig-controller"
-  base_instance_name = "controller"
-  
-  version {
-    instance_template  = google_compute_instance_template.controller.self_link
-  }
-
-  region             = "europe-west3"
-  distribution_policy_zones  = ["europe-west3-a", "europe-west3-b", "europe-west3-c"]
-
-  target_size        = 3
-  wait_for_instances = true
-
-  timeouts {
-    create = "15m"
-    update = "15m"
-  }
-
-  update_policy {
-    type                         = "PROACTIVE"
-    instance_redistribution_type = "PROACTIVE"
-    minimal_action               = "RESTART"
-    max_unavailable_fixed        = 3
-    min_ready_sec                = 50    
-  }  
-  
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "google_compute_region_instance_group_manager" "worker" {
-  name               = "mig-worker"
-  base_instance_name = "worker"
-  
-  version {
-    instance_template  = google_compute_instance_template.worker.self_link
-  }
-
-  region             = "europe-west3"
-  distribution_policy_zones  = ["europe-west3-a", "europe-west3-b"]
-
-  target_size        = 2
-  wait_for_instances = true
-
-  timeouts {
-    create = "15m"
-    update = "15m"
-  }
-
-  update_policy {
-    type                         = "PROACTIVE"
-    instance_redistribution_type = "PROACTIVE"
-    minimal_action               = "RESTART"
-    max_unavailable_fixed        = 2
-    min_ready_sec                = 50    
-  }  
-  
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+//resource "google_compute_instance_template" "worker" {
+//
+//  machine_type   = "e2-micro"
+//  can_ip_forward = true
+//
+//  labels = {
+//    hostgroup = "worker"
+//    kubespray-0 = "kube-node"
+//  }
+//
+//  tags = ["kubernetes-the-easy-way", "worker", "kube-node"]
+//  name_prefix = "worker-"
+//
+//  scheduling {
+//    preemptible       = true
+//    automatic_restart = false
+//  }
+//
+//  // Create a new boot disk from an image
+//  disk {
+//    source_image = "ubuntu-os-cloud/ubuntu-minimal-1804-bionic-v20200220"
+//    auto_delete  = true
+//    boot         = true
+//    disk_type    = "pd-standard"
+//  }
+//
+//  network_interface {
+//    subnetwork = google_compute_subnetwork.default.name
+//
+//    access_config {
+//      // Ephemeral IP
+//    }
+//  }  
+//  
+//  service_account {
+//    email  = "terraform@stich-karl-my-k8s.iam.gserviceaccount.com"
+//    scopes = ["compute-rw", "storage-ro", "service-management", "service-control", "logging-write", "monitoring"]
+//  }
+//
+//  metadata = {
+//    sshKeys = "${var.gce_ssh_user}:${file(var.gce_ssh_pub_key_file)}"
+//  }
+//
+//  metadata_startup_script = "apt-get install -y python"
+//
+//  lifecycle {
+//    create_before_destroy = true
+//  }
+//
+//resource "google_compute_region_instance_group_manager" "controller" {
+//  name               = "mig-controller"
+//  base_instance_name = "controller"
+//  
+//  version {
+//    instance_template  = google_compute_instance_template.controller.self_link
+//  }
+//
+//  region             = "europe-west3"
+//  distribution_policy_zones  = ["europe-west3-a", "europe-west3-b", "europe-west3-c"]
+//
+//  target_size        = 3
+//  wait_for_instances = true
+//
+//  timeouts {
+//    create = "15m"
+//    update = "15m"
+//  }
+//
+//  update_policy {
+//    type                         = "PROACTIVE"
+//    instance_redistribution_type = "PROACTIVE"
+//    minimal_action               = "RESTART"
+//    max_unavailable_fixed        = 3
+//    min_ready_sec                = 50    
+//  }  
+//  
+//  lifecycle {
+//    create_before_destroy = true
+//  }
+//
+//resource "google_compute_region_instance_group_manager" "worker" {
+//  name               = "mig-worker"
+//  base_instance_name = "worker"
+//  
+//  version {
+//    instance_template  = google_compute_instance_template.worker.self_link
+//  }
+//
+//  region             = "europe-west3"
+//  distribution_policy_zones  = ["europe-west3-a", "europe-west3-b"]
+//
+//  target_size        = 2
+//  wait_for_instances = true
+//
+//  timeouts {
+//    create = "15m"
+//    update = "15m"
+//  }
+//
+//  update_policy {
+//    type                         = "PROACTIVE"
+//    instance_redistribution_type = "PROACTIVE"
+//    minimal_action               = "RESTART"
+//    max_unavailable_fixed        = 2
+//    min_ready_sec                = 50    
+//  }  
+//  
+//  lifecycle {
+//    create_before_destroy = true
+//  }
+//}
 
