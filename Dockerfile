@@ -30,7 +30,7 @@ RUN unzip $TERRAFORM_FILE && \
     git clone https://github.com/kubernetes-sigs/kubespray.git && \
     cd kubespray && \
     git checkout ${KUBESPRAY_RELEASE} && \
-    cp -rfp inventory/sample inventory/mycluster && \
+    mkdir -p inventory/mycluster && \
     pip install -r requirements.txt && \
     pip install requests google-auth apache-libcloud && \
     cd ..
