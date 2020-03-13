@@ -31,7 +31,7 @@ resource "google_compute_route" "default" {
   tags        = [ "no-ip" ]
   dest_range  = "0.0.0.0/0"
   network     = google_compute_network.default.name
-  next_hop_ip = "10.240.0.2"
+  next_hop_ip = "10.240.0.40"
   priority    = 800
 }
 
@@ -137,7 +137,7 @@ resource "google_compute_instance" "bastion" {
 
   network_interface {
     subnetwork = google_compute_subnetwork.default.name
-    network_ip = "10.240.0.2"
+    network_ip = "10.240.0.4${count.index}"
 
     access_config {
       nat_ip = google_compute_address.default.address
