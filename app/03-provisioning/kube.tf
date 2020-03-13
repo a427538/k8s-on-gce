@@ -28,7 +28,7 @@ resource "google_compute_subnetwork" "default" {
 
 resource "google_compute_route" "default" {
   name        = "kubernetes-the-easy-way"
-  tags        = "no-ip"
+  tags        = [ "no-ip" ]
   dest_range  = "0.0.0.0/0"
   network     = google_compute_network.default.name
   next_hop_ip = "10.240.0.2"
