@@ -5,8 +5,8 @@ BASTION_EXTERNAL_IP=$(gcloud compute instances list --filter="(name:bastion-0)" 
 cat > hosts.ini <<EOF
 [all]
 $(gcloud compute instances list --filter="(name:bastion-0)" | grep -v NAME | awk '{printf "%s ansible_host=%s ip=%s\n",$1,$5,$4;}')
-$(gcloud compute instances list --filter="(name:node-*)" | grep -v NAME | awk -v bastion_ip="$BASTION_EXTERNAL_IP" '{printf "%s ansible_host=%s ip=%s ansible_ssh_common_args=\x27-o ProxyCommand=\"ssh -i ~/.ssh/google_compute_engine -W %%h:%%p -q " bastion_ip "\"\x27\n",$1,$4,$4;}')
-$(gcloud compute instances list --filter="(name:nfs-*)" | grep -v NAME | awk -v bastion_ip="$BASTION_EXTERNAL_IP" '{printf "%s ansible_host=%s ip=%s ansible_ssh_common_args=\x27-o ProxyCommand=\"ssh -i ~/.ssh/google_compute_engine -W %%h:%%p -q " bastion_ip "\"\x27\n",$1,$4,$4;}')
+$(gcloud compute instances list --filter="(name:node-*)" | grep -v NAME | awk -v bastion_ip="$BASTION_EXTERNAL_IP" '{printf "%s ansible_host=%s ip=%s ansible_ssh_common_args=\x27-o ProxyCommand=\"ssh -i ~/.ssh/google_compute_engine -o StrictHostKeyChecking=no -W %%h:%%p -q root@" bastion_ip "\"\x27\n",$1,$4,$4;}')
+$(gcloud compute instances list --filter="(name:nfs-*)" | grep -v NAME | awk -v bastion_ip="$BASTION_EXTERNAL_IP" '{printf "%s ansible_host=%s ip=%s ansible_ssh_common_args=\x27-o ProxyCommand=\"ssh -i ~/.ssh/google_compute_engine -o StrictHostKeyChecking=no -W %%h:%%p -q root@" bastion_ip "\"\x27\n",$1,$4,$4;}')
 $(gcloud compute instances list --filter="(name:haproxy-*)" | grep -v NAME | awk '{printf "%s ansible_host=%s ip=%s\n",$1,$5,$4;}')
 
 [kube-master]
