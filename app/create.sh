@@ -24,9 +24,10 @@ terraform apply -auto-approve -var "gce_zone=${GCLOUD_ZONE}" 03-provisioning
 
 cd /root/app
 # ansible-inventory -i 00-ansible/inventory.gcp.yml --graph
-00-ansible/create-inventory.sh && \
-ansible-playbook -i hosts.ini 00-ansible/add-tags-playbook.yml && \
-00-ansible/create-inventory.sh
+00-ansible/create-inventory.sh 
+
+# ansible-playbook -i hosts.ini 00-ansible/add-tags-playbook.yml && \
+# 00-ansible/create-inventory.sh
 
 # ansible-playbook -i 00-ansible/inventory.gcp.yml 07-etcd/etcd-playbook.yml
 

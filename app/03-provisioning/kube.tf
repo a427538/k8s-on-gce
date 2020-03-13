@@ -26,15 +26,6 @@ resource "google_compute_subnetwork" "default" {
   ip_cidr_range = "10.240.0.0/24"
 }
 
-resource "google_compute_route" "default" {
-  name        = "kubernetes-the-easy-way"
-  tags        = [ "no-ip" ]
-  dest_range  = "0.0.0.0/0"
-  network     = google_compute_network.default.name
-  next_hop_ip = "10.240.0.40"
-  priority    = 800
-}
-
 resource "google_compute_firewall" "internal" {
   name    = "kubernetes-the-easy-way-allow-internal"
   network = google_compute_network.default.name
@@ -72,6 +63,15 @@ resource "google_compute_firewall" "external" {
   }
 
   source_ranges = ["0.0.0.0/0"]
+}
+
+resource "google_compute_route" "default" {
+  name        = "kubernetes-the-easy-way"
+  tags        = [ "no-ip" ]
+  dest_range  = "0.0.0.0/0"
+  network     = google_compute_network.default.name
+  next_hop_ip = "10.240.0.40"
+  priority    = 800
 }
 
 resource "google_compute_address" "default" {
@@ -116,7 +116,7 @@ resource "google_compute_instance" "nfs" {
     sshKeys = "${var.gce_ssh_user}:${file(var.gce_ssh_pub_key_file)}"
   }
 
-  metadata_startup_script = "apt-get install -y python"
+  metadata_startup_script = file("03-provisioning/startup-nfs.sh")
 }
 
 resource "google_compute_instance" "bastion" {

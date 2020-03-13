@@ -10,13 +10,13 @@ $(gcloud compute instances list --filter="(name:nfs-*)" | grep -v NAME | awk -v 
 $(gcloud compute instances list --filter="(name:haproxy-*)" | grep -v NAME | awk '{printf "%s ansible_host=%s ip=%s\n",$1,$5,$4;}')
 
 [kube-master]
-$(gcloud compute instances list --filter="(tags.items:kube-master)" | grep -v NAME | awk '{ print $1 }')
+$(gcloud compute instances list --filter="(name:node-[0-2])" | grep -v NAME | awk '{ print $1 }')
 
 [etcd]
-$(gcloud compute instances list --filter="(tags.items:etcd)" | grep -v NAME | awk '{ print $1 }')
+$(gcloud compute instances list --filter="(name:node-[0-2])" | grep -v NAME | awk '{ print $1 }')
 
 [kube-node]
-$(gcloud compute instances list --filter="(tags.items:kube-node)" | grep -v NAME | awk '{ print $1 }')
+$(gcloud compute instances list --filter="(name:node-*)" | grep -v NAME | awk '{ print $1 }')
 
 [calico-rr]
 
