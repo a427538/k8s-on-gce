@@ -80,7 +80,7 @@ resource "google_compute_instance" "nfs" {
     hostgroup = "nfs"
   }
 
-  tags = ["kubernetes-the-easy-way", "nfs"]
+  tags = ["kubernetes-the-easy-way", "nfs", "no-ip"]
 
   boot_disk {
     initialize_params {
