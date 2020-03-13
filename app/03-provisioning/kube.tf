@@ -26,6 +26,14 @@ resource "google_compute_subnetwork" "default" {
   ip_cidr_range = "10.240.0.0/24"
 }
 
+resource "google_compute_route" "default" {
+  name        = "kubernetes-the-easy-way"
+  dest_range  = "10.240.0.0/24"
+  network     = google_compute_network.default.name
+  next_hop_ip = "10.240.0.2"
+  priority    = 800
+}
+
 resource "google_compute_firewall" "internal" {
   name    = "kubernetes-the-easy-way-allow-internal"
   network = google_compute_network.default.name
@@ -128,7 +136,7 @@ resource "google_compute_instance" "bastion" {
 
   network_interface {
     subnetwork = google_compute_subnetwork.default.name
-    network_ip = "10.240.0.254"
+    network_ip = "10.240.0.2"
 
     access_config {
       nat_ip = google_compute_address.default.address
