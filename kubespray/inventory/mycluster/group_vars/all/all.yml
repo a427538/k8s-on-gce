@@ -81,7 +81,7 @@ download_validate_certs: False
 cert_management: script
 
 ## Set to true to allow pre-checks to fail and continue deployment
-# ignore_assert_errors: false
+ignore_assert_errors: true
 
 ## The read-only port for the Kubelet to serve on with no authentication/authorization. Uncomment to enable.
 kube_read_only_port: 10255
