@@ -31,7 +31,7 @@ cd /root/app
 
 # ansible-playbook -i 00-ansible/inventory.gcp.yml 07-etcd/etcd-playbook.yml
 
-# ansible-playbook -i 00-ansible/inventory.gcp.yml 07-haproxy/haproxy-playbook.yml
+ansible-playbook -i hosts.ini 07-haproxy/haproxy-playbook.yml
 
 # ansible-playbook -i 00-ansible/inventory.gcp.yml 08-kube-controller/kube-controller-playbook.yml
 # ansible-playbook -i 00-ansible/inventory.gcp.yml 08-kube-controller/rbac-playbook.yml
