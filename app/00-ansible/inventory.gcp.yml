@@ -35,5 +35,5 @@ compose:
   ansible_host: networkInterfaces[0].accessConfigs[0].natIP
   ip: networkInterfaces[0].networkIP 
   ansible_connection: ssh
-  ansible_ssh_private_key_file: /root/.ssh/google_compute_engine
+  ansible_ssh_private_key_file: /root/.ssh/id_rsa
   ansible_user: root  

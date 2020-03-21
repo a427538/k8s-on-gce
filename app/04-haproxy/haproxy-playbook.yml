@@ -1,4 +1,5 @@
 - hosts: haproxy
+  become: true
   tasks:
     - name: update apt cache
       apt:

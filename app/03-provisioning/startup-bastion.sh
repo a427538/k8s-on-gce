@@ -1,7 +1,7 @@
 #!/bin/bash -xe
 
 apt-get update
-apt-get install python -y
+apt-get install vim mc aptitude python -y
 
 # Enable ip forwarding and nat
 sysctl -w net.ipv4.ip_forward=1

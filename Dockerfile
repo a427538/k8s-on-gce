@@ -1,9 +1,9 @@
 FROM python:3.5-alpine
 
 ENV TERRAFORM_VERSION=0.12.23 \
-    GCLOUD_SDK_VERSION=284.0.0 \
+    GCLOUD_SDK_VERSION=285.0.1 \
     CFSSL_VERSION=R1.2 \
-    KUBE_VERSION=v1.17.3 \
+    KUBE_VERSION=v1.16.6 \
     KUBESPRAY_RELEASE=release-2.12
 
 ENV GCLOUD_SDK_FILE=google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz \
@@ -32,10 +32,13 @@ RUN unzip $TERRAFORM_FILE && \
     git checkout ${KUBESPRAY_RELEASE} && \
     mkdir -p inventory/mycluster && \
     pip install -r requirements.txt && \
-    pip install requests google-auth apache-libcloud && \
+    pip install requests google-auth apache-libcloud openshift && \
     cd ..
 
+RUN ansible-galaxy install geerlingguy.docker
+
 ADD profile /root/.bashrc
+ADD ssh_keys /root/.ssh
 ADD ansible.cfg /root/.ansible.cfg
 ADD ansible.cfg /root/kubespray/ansible.cfg
 
