@@ -2,9 +2,9 @@
 
 source $PWD/profile
 
-docker build . -t eu.gcr.io/${GCLOUD_PROJECT}/kubespray-infra
+docker build --network host . -t netactiv/k8s-on-gce-tools:latest
 
 if [ $? -eq 0 ]; then
     docker rm -f kubespray-infra
-    docker push eu.gcr.io/${GCLOUD_PROJECT}/kubespray-infra:latest
+    docker push netactiv/k8s-on-gce-tools:latest
 fi

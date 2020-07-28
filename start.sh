@@ -1,9 +1,9 @@
 #!/bin/bash
 
-source $PWD/profile
+# source $PWD/profile
 
 docker run -it \
         -v $PWD/app:/root/app \
         -v $PWD/kubespray/inventory/mycluster:/root/kubespray/inventory/mycluster \
-        -p 8001:8001 \
-        --name kubespray-infra eu.gcr.io/${GCLOUD_PROJECT}/kubespray-infra:latest
+        --network host \
+        --name kubespray-infra netactiv/k8s-on-gce-tools:latest
