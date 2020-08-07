@@ -32,7 +32,7 @@
 # calico_datastore: "etcd"
 
 # Choose Calico iptables backend: "Iptables" or "NFT"
-# calico_iptables_backend: "Iptables"
+calico_iptables_backend: "NFT"
 
 # Use typha (only with kdd)
 # typha_enabled: false

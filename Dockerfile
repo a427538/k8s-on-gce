@@ -3,14 +3,14 @@ FROM python:3.8-alpine
 ENV TERRAFORM_VERSION=0.12.29 \
     GCLOUD_SDK_VERSION=301.0.0 \
     CFSSL_VERSION=R1.2 \
-    KUBE_VERSION=v1.16.11 \
-    KUBESPRAY_RELEASE=release-2.12.7
+    KUBE_VERSION=v1.17.8 \
+    KUBESPRAY_RELEASE=release-2.13
 
 ENV GCLOUD_SDK_FILE=google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz \
     TERRAFORM_FILE=terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 # RUN apk update && \
-RUN apk add bash curl git openssh-client gcc make musl-dev libffi-dev openssl-dev jq && \
+RUN apk add bash curl git openssh-client gcc make musl-dev libffi-dev openssl openssl-dev jq && \
     curl -o /root/$GCLOUD_SDK_FILE https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/$GCLOUD_SDK_FILE && \
     curl -o /usr/local/bin/cfssl https://pkg.cfssl.org/$CFSSL_VERSION/cfssl_linux-amd64 && \
     curl -o /usr/local/bin/cfssljson https://pkg.cfssl.org/$CFSSL_VERSION/cfssljson_linux-amd64 && \
@@ -36,6 +36,7 @@ RUN unzip $TERRAFORM_FILE && \
     cd ..
 
 RUN ansible-galaxy install geerlingguy.docker
+RUN curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
 ADD profile /root/.bashrc
 ADD ssh_keys /root/.ssh

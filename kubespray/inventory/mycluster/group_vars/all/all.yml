@@ -17,15 +17,15 @@ bin_dir: /usr/local/bin
 
 
 ## External LB example config
-apiserver_loadbalancer_domain_name: "k8s.totopos.de"
-loadbalancer_apiserver:
-  address: 95.216.170.23
-  port: 6443
+# apiserver_loadbalancer_domain_name: "k8s.totopos.de"
+# loadbalancer_apiserver:
+#   address: 10.0.0.2
+#   port: 6443
 
 ## Internal loadbalancers for apiservers
-# loadbalancer_apiserver_localhost: true
+loadbalancer_apiserver_localhost: true
 # valid options are "nginx" or "haproxy"
-# loadbalancer_apiserver_type: nginx # valid values "nginx" or "haproxy"
+loadbalancer_apiserver_type: nginx # valid values "nginx" or "haproxy"
 
 ## Local loadbalancer should use this port
 ## And must be set port 6443
