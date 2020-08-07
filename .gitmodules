@@ -1,4 +1,0 @@
-[submodule "rook"]
-	path = rook
-	url = https://github.com/rook/rook.git
-	branch = release-1.3

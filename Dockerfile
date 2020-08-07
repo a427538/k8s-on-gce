@@ -4,7 +4,8 @@ ENV TERRAFORM_VERSION=0.12.29 \
     GCLOUD_SDK_VERSION=301.0.0 \
     CFSSL_VERSION=R1.2 \
     KUBE_VERSION=v1.17.8 \
-    KUBESPRAY_RELEASE=release-2.13
+    KUBESPRAY_RELEASE=release-2.13 \
+    ROOK_RELEASE=release-1.3
 
 ENV GCLOUD_SDK_FILE=google-cloud-sdk-${GCLOUD_SDK_VERSION}-linux-x86_64.tar.gz \
     TERRAFORM_FILE=terraform_${TERRAFORM_VERSION}_linux_amd64.zip
@@ -30,6 +31,9 @@ RUN unzip $TERRAFORM_FILE && \
     git clone https://github.com/kubernetes-sigs/kubespray.git && \
     cd kubespray && \
     git checkout ${KUBESPRAY_RELEASE} && \
+    git clone https://github.com/rook/rook.git && \
+    cd rook && \
+    git checkout ${ROOK_RELEASE} && \
     mkdir -p inventory/mycluster && \
     pip install -r requirements.txt && \
     pip install requests google-auth apache-libcloud openshift && \
